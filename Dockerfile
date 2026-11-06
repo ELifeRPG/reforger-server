@@ -14,7 +14,10 @@ COPY --chmod=755 scripts/entrypoint.sh scripts/render-config.sh /usr/local/bin/
 
 USER reforger
 WORKDIR /reforger
-RUN /opt/steamcmd/steamcmd.sh +quit
+# steamcmd updates itself on every container start (see entrypoint.sh), so the
+# build only checks that its 32-bit libraries resolve. That check needs no
+# network access to Steam, which GitHub-hosted runners can't reliably reach.
+RUN ! ldd /opt/steamcmd/linux32/steamcmd | grep 'not found'
 
 VOLUME ["/reforger/server", "/reforger/profile"]
 EXPOSE 2001/udp 17777/udp 19999/udp
